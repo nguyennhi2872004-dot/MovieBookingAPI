@@ -30,18 +30,18 @@ dotnet tool install --global dotnet-ef
 
 ## 📦 Cài đặt dự án
 
-### 1️⃣ Restore packages
+### 1️. Restore packages
 ```bash
 dotnet restore
 ```
 
-### 2️⃣ Tạo Database
+### 2️. Tạo Database
 ```bash
 dotnet ef migrations add InitialCreate
 dotnet ef database update
 ```
 
-### 3️⃣ Chạy ứng dụng
+### 3️. Chạy ứng dụng
 ```bash
 dotnet run
 ```
@@ -215,21 +215,7 @@ GET `/api/admin/stats/revenue-by-date`
 
 ---
 
-# 🧪 10. Kịch bản demo gợi ý
-
-1. Đăng nhập Admin → lấy token  
-2. Thêm phim  
-3. Thêm rạp  
-4. Thêm phòng chiếu (ghế auto-generate)  
-5. Tạo suất chiếu  
-6. Đăng nhập User → đặt vé → chống trùng ghế  
-7. Thanh toán mock → booking confirmed  
-8. Hủy vé  
-9. Admin xem thống kê  
-
----
-
-# 🧠 11. Hướng phát triển
+# 🧠 10. Hướng phát triển
 
 - Giao diện frontend React/Next.js  
 - Tích hợp VNPay/Momo  
