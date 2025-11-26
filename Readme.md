@@ -1,59 +1,80 @@
-﻿# 🎬 MovieBookingAPI – Hệ thống Đặt Vé Xem Phim (ASP.NET Core 8 + SQL Server)
+﻿
+# 🎬 MovieBookingAPI – Hệ thống Đặt Vé Xem Phim (ASP.NET Core 8 + SQL Server)
 
-Hệ thống API đặt vé xem phim trực tuyến, hỗ trợ **phân quyền Admin/User**, **đặt ghế**, **chống đặt trùng**, **thanh toán mô phỏng**, và **thống kê dành cho Admin**.
+Hệ thống API đặt vé xem phim trực tuyến hỗ trợ:
+✔ Phân quyền Admin/User  
+✔ Tạo phim – rạp – phòng – suất chiếu  
+✔ Sinh ghế tự động  
+✔ Đặt vé + chống đặt trùng  
+✔ Thanh toán mô phỏng  
+✔ Thống kê doanh thu dành cho Admin  
 
 ---
 
 ## 🚀 Công nghệ sử dụng
-
-- **ASP.NET Core 8 Web API**
-- **Entity Framework Core 8**
-- **SQL Server**
-- **JWT Authentication**
-- **Swagger UI**
-- **LINQ + EF Query**
-- **Migration Code-First**
+- ASP.NET Core 8 Web API  
+- Entity Framework Core 8  
+- SQL Server  
+- JWT Authentication  
+- Swagger UI  
+- Migration Code‑First  
 
 ---
 
-## 🧰 Yêu cầu môi trường
-
+## ⚙ Yêu cầu môi trường
 - .NET SDK 8 trở lên  
-- SQL Server (local hoặc Docker)  
-- Entity Framework CLI:
-
+- SQL Server  
+- Đã cài EF CLI:
 ```bash
 dotnet tool install --global dotnet-ef
 ```
 
 ---
 
-## 📦 Cài đặt dự án
+# 📥 Cách chạy khi tải từ GitHub về
 
-### 1️. Restore packages
+## 1️. Clone dự án
+```bash
+git clone https://github.com/<your-username>/MovieBookingAPI.git
+cd MovieBookingAPI
+```
+
+## 2️. Restore packages
 ```bash
 dotnet restore
 ```
 
-### 2️. Tạo Database
+## 3️. Kiểm tra / sửa Connection String
+File `appsettings.json`:
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Server=.;Database=MovieBookingDB;Trusted_Connection=True;TrustServerCertificate=True"
+}
+```
+
+## 4️. Tạo Database
+Nếu thư mục *Migrations/* đã có:
 ```bash
-dotnet ef migrations add InitialCreate
 dotnet ef database update
 ```
 
-### 3️. Chạy ứng dụng
+Nếu chưa có:
+```bash
+dotnet ef migrations add Init
+dotnet ef database update
+```
+
+## 5️. Chạy chương trình
 ```bash
 dotnet run
 ```
 
-Ứng dụng chạy tại:
+Swagger chạy tại:
+```
+https://localhost:{port}/swagger
+```
 
-👉 https://localhost:{port}/swagger
-
----
-
-## 👤 Tài khoản mặc định
-
+## 6️⃣ Đăng nhập bằng tài khoản mẫu
 | Role  | Username | Password   |
 |-------|----------|------------|
 | Admin | admin    | Admin@123  |
@@ -61,8 +82,7 @@ dotnet run
 
 ---
 
-## 📁 Cấu trúc dự án
-
+# 📁 Cấu trúc dự án
 ```
 MovieBookingAPI/
 │── Controllers/
@@ -79,160 +99,125 @@ MovieBookingAPI/
 
 # 🔐 1. Authentication – JWT
 
-### Đăng ký
-`POST /api/auth/register`
+### Đăng ký  
+POST `/api/auth/register`  
 
-### Đăng nhập
-`POST /api/auth/login`
+### Đăng nhập  
+POST `/api/auth/login`
 
-→ Trả về JWT Token  
-→ Dùng nút **Authorize** trong Swagger để đăng nhập.
+→ Trả về JWT Token → dùng nút **Authorize** trên Swagger.
 
 ---
 
-# 🎞 2. Movie Management (Admin)
-
-### Xem danh sách phim
-GET `/api/movies`
-
-### Thêm phim
+# 🎞 2. Movie Management
+GET `/api/movies`  
 POST `/api/movies`
 
+Ví dụ thêm phim:
 ```json
 {
-  "title": "Avengers Endgame",
-  "duration": 180
+  "title": "Inception",
+  "duration": 148,
+  "description": "A mind-bending thriller",
+  "posterUrl": "https://..."
 }
 ```
 
 ---
 
-# 🏢 3. Cinema & Room Management
+# 🏢 3. Cinema & Room
 
-### Thêm rạp
+### Thêm rạp  
 POST `/api/cinemas`
 
-### Thêm phòng chiếu (auto generate seat)
+### Thêm phòng + tự sinh ghế  
 POST `/api/rooms`
-
 ```json
 {
   "cinemaId": 1,
   "name": "Phòng 1",
   "rows": 5,
-  "columns": 10
+  "seatsPerRow": 10
 }
 ```
-
-→ Hệ thống tự tạo 50 ghế (A1 → E10)
+→ Sinh tự động 50 ghế.
 
 ---
 
 # 🕒 4. Tạo suất chiếu
-
 POST `/api/showtimes`
-
 ```json
 {
   "movieId": 1,
   "roomId": 1,
-  "startTime": "2025-01-01T18:00:00"
+  "startTime": "2026-01-01T19:00:00"
 }
 ```
 
 ---
 
-# 💺 5. Hiển thị ghế theo suất chiếu
-
-GET `/api/ShowtimeSeats/{showtimeId}`
-
-- Ghế booked → màu đỏ  
-- Ghế trống → màu xanh  
-- API chống đặt trùng
+# 💺 5. Trạng thái ghế theo suất
+GET `/api/ShowtimeSeats/{showtimeId}`  
+→ Xác định ghế trống / đã đặt.
 
 ---
 
-# 🎫 6. Đặt vé (User)
-
-POST `/api/bookings`
-
+# 🎫 6. Đặt vé
+POST `/api/bookings`  
 ```json
 {
   "showtimeId": 1,
-  "seatIds": [1,2]
+  "seatIds": [1, 2]
 }
 ```
-
-→ Booking status: **Pending**
+✔ Kiểm tra ghế trùng  
+✔ Tạo booking status = Pending  
 
 ---
 
-# 💳 7. Thanh toán mô phỏng
+# ❌ 7. Hủy vé
+PUT `/api/bookings/{id}/cancel`  
+✔ Hủy trước giờ chiếu  
+❌ Không hủy nếu suất đã diễn ra  
 
+---
+
+# 💳 8. Thanh toán mô phỏng
 POST `/api/payments/mock`
-
 ```json
 {
-  "bookingId": 1,
-  "method": "MockGateway"
+  "bookingId": 1
 }
 ```
-
-Kết quả:
-
-- Booking → Confirmed  
-- Payment → Success  
-- Amount → auto generate  
-- PaidAt → saved  
-
----
-
-# ❌ 8. Hủy vé
-
-PUT `/api/bookings/{id}/cancel`
-
-- Trước giờ chiếu → Hủy được  
-- Sau giờ chiếu → Không cho hủy  
+→ Booking = Confirmed  
+→ Payment = Success  
 
 ---
 
 # 📊 9. API Thống kê (Admin)
 
-### 9.1 Tổng quan booking  
-GET `/api/admin/stats/bookings-summary`
-
-### 9.2 Booking theo ngày  
-GET `/api/admin/stats/bookings-by-date`
-
-### 9.3 Top phim bán chạy  
-GET `/api/admin/stats/top-movies`
-
-### 9.4 Doanh thu theo phim  
-GET `/api/admin/stats/revenue-by-movie`
-
-### 9.5 Doanh thu theo ngày  
-GET `/api/admin/stats/revenue-by-date`
+- GET `/api/admin/stats/bookings-summary`
+- GET `/api/admin/stats/bookings-by-date`
+- GET `/api/admin/stats/top-movies`
+- GET `/api/admin/stats/revenue-by-movie`
+- GET `/api/admin/stats/revenue-by-date`
 
 ---
 
 # 🧠 10. Hướng phát triển
-
-- Giao diện frontend React/Next.js  
-- Tích hợp VNPay/Momo  
-- Gửi email xác nhận vé  
+- Thêm giao diện React/Next.js  
+- Tích hợp VNPay/MoMo  
 - QR Code check-in  
+- Email xác nhận vé  
 - Dashboard real-time  
 
 ---
 
 # 🎉 Kết luận
-
-MovieBookingAPI là hệ thống đặt vé hoàn chỉnh:
-
-✔ JWT Auth  
-✔ Movie / Cinema / Room / Showtime  
-✔ Generate Seats  
-✔ Booking chống trùng  
-✔ Payment mock  
-✔ Admin Statistics  
-✔ Dễ mở rộng & triển khai thực tế
+MovieBookingAPI là hệ thống đặt vé hoàn chỉnh, đáp ứng đầy đủ:  
+✔ Auth  
+✔ Quản lý phim/rạp/phòng/suất  
+✔ Ghế tự sinh  
+✔ Đặt – Hủy – Thanh toán  
+✔ Thống kê Admin  
+✔ Dễ mở rộng và triển khai thực tế  
